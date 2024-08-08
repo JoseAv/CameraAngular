@@ -1,0 +1,11 @@
+<div>
+    <video #video width="640" height="480" autoplay></video>
+    <canvas #canvas width="640" height="480" style="display: none;"></canvas>
+    <button (click)="captureImage()">Take Picture</button>
+</div>
+<div>
+    <h3>Captured Images</h3>
+    <div *ngFor="let img of capturedImages">
+        <img [src]="img" width="160" height="120">
+    </div>
+</div>
