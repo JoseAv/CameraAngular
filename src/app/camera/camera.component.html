@@ -1,4 +1,11 @@
 <div>
+    <label for="videoInputSelect">Select Camera: </label>
+    <select id="videoInputSelect" (change)="onDeviceChange($event)">
+        <option *ngFor="let device of videoDevices" [value]="device.deviceId">
+            {{ device.label || 'Camera ' + device.deviceId }}
+        </option>
+    </select>
+    <br />
     <video #video width="640" height="480" autoplay></video>
     <canvas #canvas width="640" height="480" style="display: none;"></canvas>
     <button (click)="captureImage()">Take Picture</button>

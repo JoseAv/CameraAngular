@@ -10,14 +10,32 @@ export class CameraComponent implements OnInit {
   @ViewChild('canvas', { static: true }) canvas!: ElementRef<HTMLCanvasElement>;
 
   public capturedImages: string[] = [];
+  public videoDevices: MediaDeviceInfo[] = [];
+  public selectedDeviceId: string = '';
 
   ngOnInit(): void {
-    this.startCamera();
+    this.enumerateDevices();
+  }
+
+  async enumerateDevices() {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    this.videoDevices = devices.filter(device => device.kind === 'videoinput');
+    if (this.videoDevices.length > 0) {
+      this.selectedDeviceId = this.videoDevices[0].deviceId;
+      this.startCamera();
+    }
   }
 
   async startCamera() {
+    if (!this.selectedDeviceId) {
+      console.error('No video device selected');
+      return;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: { exact: this.selectedDeviceId } }
+      });
       this.video.nativeElement.srcObject = stream;
       this.video.nativeElement.play();
     } catch (error) {
@@ -31,6 +49,14 @@ export class CameraComponent implements OnInit {
     const dataUrl = this.canvas.nativeElement.toDataURL('image/png');
     this.capturedImages.push(dataUrl);
 
-    console.log(this.captureImage)
+    console.log(this.capturedImages);
+  }
+
+  onDeviceChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    if (target) {
+      this.selectedDeviceId = target.value;
+      this.startCamera();
+    }
   }
 }
